@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { apiUrl } from "../constants/constants";
 
 export default function Header() {
   const [result, setResult] = useState(null);
@@ -11,7 +12,7 @@ export default function Header() {
       data.append("filename", file.name);
 
       // TODO: Eventually can get actual data not just filename. Encrypt it
-      fetch("http://localhost:5000/result", {
+      fetch(apiUrl, {
         method: "POST",
         body: data
       })

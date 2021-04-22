@@ -13,3 +13,4 @@ def get_result():
     file = request.files['file']
     filename = file.filename
     return {'result': bool(random.getrandbits(1))}
+    
