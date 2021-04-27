@@ -12,5 +12,9 @@ def get_result():
     # TODO: Eventually can get actual data not just filename. Encrypt it
     file = request.files['file']
     filename = file.filename
-    return {'result': bool(random.getrandbits(1))}
+    # TODO: dummy array of time-boxed seizure classifications
+    results = []
+    for i in range(10):
+        results.append(random.random())
+    return {'result': results}
     
