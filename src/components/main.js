@@ -66,7 +66,10 @@ export default function Header() {
             backgroundColor: barcolor,
             height: `${resToHeight * 4}px`,
             opacity: 0.88,
+            // Necessary for overlap
             position: "relative",
+            // Each bar is 20 * index left of where it should
+            // Creating overlapping effect
             left: `${-20 * index}px`
           }}
           key={index}
