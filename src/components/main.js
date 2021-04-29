@@ -5,6 +5,9 @@ export default function Header() {
   const [result, setResult] = useState(null);
   const [file, setFile] = useState(null);
 
+  // Above this value we should consider this a seizure
+  const predThreshold = 70;
+
   const handleUpload = () => {
     if (file) {
       const data = new FormData();
@@ -25,6 +28,20 @@ export default function Header() {
     }
   };
 
+  const pickHex = (color1, color2, percent) => {
+    // Quash the gradient
+    if (percent < predThreshold) {
+      percent = percent / 3;
+    }
+    const w1 = percent / 100;
+    const w2 = 1 - w1;
+    var rgb = [
+      Math.round(color1[0] * w1 + color2[0] * w2),
+      Math.round(color1[1] * w1 + color2[1] * w2),
+      Math.round(color1[2] * w1 + color2[2] * w2)
+    ];
+    return rgb;
+  };
   const onFileChange = event => {
     setFile(event.target.files[0]);
   };
@@ -32,22 +49,28 @@ export default function Header() {
   const barGraphResults = results => {
     return results.map((res, index) => {
       let resToHeight = Math.round((res * 100) / 4) * 4;
-      // To display something at least
-      if (resToHeight === 0) {
-        resToHeight++;
+
+      const red = [238, 75, 43];
+      const green = [80, 200, 120];
+      const mix = pickHex(red, green, resToHeight);
+      const barcolor = "rgb(" + mix[0] + "," + mix[1] + "," + mix[2] + ")";
+
+      if (resToHeight < 6) {
+        // Min height so text displays on bar
+        resToHeight = 6;
       }
-      // TODO: Update to full gradient
-      let barcolor = "green-200";
-      if (res > 0.25 && res < 0.5) {
-        barcolor = "green-400";
-      } else if (res >= 0.5 && res < 0.75) {
-        barcolor = "red-200";
-      } else if (res > 0.75) {
-        barcolor = "red-400";
-      }
-      console.log(barcolor);
       return (
-        <h1 className={`bg-${barcolor} h-${resToHeight} p-1 ml-1`} key={index}>
+        <h1
+          className={`px-1 ml-1 w-16 text-center font-thin`}
+          style={{
+            backgroundColor: barcolor,
+            height: `${resToHeight * 4}px`,
+            opacity: 0.88,
+            position: "relative",
+            left: `${-20 * index}px`
+          }}
+          key={index}
+        >
           {res.toFixed(2)}
         </h1>
       );
