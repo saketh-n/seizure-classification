@@ -1,12 +1,9 @@
 import { useState } from "react";
-import { apiUrl } from "../constants/constants";
+import { apiUrl, predThreshold, red, green } from "../constants/constants";
 
 export default function Header() {
   const [result, setResult] = useState(null);
   const [file, setFile] = useState(null);
-
-  // Above this value we should consider this a seizure
-  const predThreshold = 70;
 
   const handleUpload = () => {
     if (file) {
@@ -50,8 +47,6 @@ export default function Header() {
     return results.map((res, index) => {
       let resToHeight = Math.round((res * 100) / 4) * 4;
 
-      const red = [238, 75, 43];
-      const green = [80, 200, 120];
       const mix = pickHex(red, green, resToHeight);
       const barcolor = "rgb(" + mix[0] + "," + mix[1] + "," + mix[2] + ")";
 
