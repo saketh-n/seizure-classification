@@ -6,6 +6,7 @@ app = Flask(__name__)
 cors = CORS(app)
 app.config['CORS_HEADERS'] = 'Content-Type'
 
+
 @app.route('/result', methods=['POST'])
 @cross_origin()
 def get_result():
@@ -17,4 +18,3 @@ def get_result():
     for i in range(10):
         results.append(random.random())
     return {'result': results}
-    
