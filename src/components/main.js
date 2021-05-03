@@ -1,17 +1,30 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { apiUrl, predThreshold, red, green } from "../constants/constants";
 
 export default function Header() {
   const [result, setResult] = useState(null);
   const [file, setFile] = useState(null);
+  const [fileData, setFileData] = useState(null);
+
+  useEffect(() => {
+    if (file) {
+      const reader = new FileReader();
+      reader.addEventListener("load", event => {
+        setFileData(event.target.result);
+      });
+      reader.readAsBinaryString(file);
+      // wait for setFileData to go through
+      setTimeout(() => {}, 100);
+    }
+  }, [file]);
 
   const handleUpload = () => {
     if (file) {
       const data = new FormData();
       data.append("file", file);
-      data.append("filename", file.name);
+      // TODO: Encrypt the passed data
+      data.append("filedata", fileData);
 
-      // TODO: Eventually can get actual data not just filename. Encrypt it
       fetch(apiUrl, {
         method: "POST",
         body: data
