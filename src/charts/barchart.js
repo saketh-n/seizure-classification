@@ -81,10 +81,7 @@ export default function BarChart({ width, height, data }) {
       .duration(300)
       .attr("height", d => yScale(d))
       .attr("y", d => height - yScale(d) + 15)
-      .text(d => {
-        console.log("hairy balls");
-        return `${d.toFixed(2)}`;
-      })
+      .text(d => `${d.toFixed(2)}`)
       .attr("x", (d, i) => indexToXCoord(i) + 27)
       .attr("font-size", "14px")
       .attr("fill", "black")
