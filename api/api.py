@@ -15,5 +15,9 @@ def get_result():
     # TODO: Eventually this dummy classifications array replaced w/ real deal
     results = []
     for i in range(10):
-        results.append(random.random())
+        # Lower bound random range at 0.06
+        prob = random.random()
+        if (prob < 0.06):
+            prob = 0.06
+        results.append(prob)
     return {'result': results}

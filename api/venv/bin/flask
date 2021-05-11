@@ -1,5 +1,5 @@
 #!/bin/sh
-'''exec' "/Users/sakethn/Documents/Senior/Neural Engineering/seizure-classification/api/venv/bin/python3" "$0" "$@"
+'''exec' "venv/bin/python3" "$0" "$@"
 ' '''
 # -*- coding: utf-8 -*-
 import re
