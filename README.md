@@ -1,3 +1,21 @@
+# Instructions for local development (e.g. Peer Review)
+
+**Before you begin**: Make sure to have `npm` and `yarn` installed on your machine, 
+as well as way to create Python virtual environments.
+
+1. Clone repo and cd into `seizure-classification` directory.
+2. Create Python virtual environment using Python version 3.7 (we recommend conda).
+3. Activate the virtual environment.
+4. Install Python dependencies by running `pip install -r requirements.txt`
+5. Ensure front end dependencies up-to-date by running `yarn install`
+
+Setup is now complete! You may test our tool by using the following steps:
+1. Open two terminal windows.
+2. In the first window, run `yarn start`. This will open our front end on localhost.
+3. In the second window, run `yarn start-api`. This will run our back end on localhost and enable api calls.
+4. Choose an `.edf` file for upload. Try the file in our `sample_data` folder.
+5. Click the `Upload data` button and watch the prediction probabilities of seizure appear in the web browser!
+
 ## Available Scripts
 
 In the project directory, you can run:
