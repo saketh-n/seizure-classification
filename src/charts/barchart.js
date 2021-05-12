@@ -160,7 +160,7 @@ export default function BarChart({ width, height, data }) {
   };
 
   return (
-    <div className="chart">
+    <div className="chart ml-20">
       <svg ref={ref}></svg>
     </div>
   );

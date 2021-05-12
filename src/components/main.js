@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { apiUrl } from "../constants/constants";
 import BarChart from "../charts/barchart";
+import Spectrogram from "./spectrogram";
 
 export default function Header() {
   const [result, setResult] = useState(null);
@@ -61,6 +62,7 @@ export default function Header() {
             onChange={onFileChange}
             accept=".edf"
           />
+          {file && <Spectrogram />}
         </div>
         {result && <BarChart width={550} height={400} data={result} />}
       </div>
