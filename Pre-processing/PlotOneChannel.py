@@ -14,17 +14,11 @@ ch_name = raw.info['ch_names']
 print("Total Channels: ", len(ch_name))
 
 #Select the required Channel
-#requiredChannel = ch_name[1]
-#raw.pick(requiredChannel)
+requiredChannel = ch_name[1]
+raw.pick(requiredChannel)
 
 #Plotting begins!
-#Raw data
-#raw.plot()
-#plt.show()
-
-
-#Better plot of one channel
-data, times = raw[1:2, :]
+data, times = raw[:, :]
 fig = plt.subplots(figsize=(10,8))
 plt.plot(times, data.T);
 plt.xlabel('Seconds')
@@ -32,9 +26,6 @@ plt.ylabel('$\mu V$')
 plt.title('Channels: 1-5');
 plt.legend(raw.ch_names[1:2]);
 plt.show()
-
-requiredChannel = ch_name[1]
-raw.pick(requiredChannel)
 
 
 #Power spectrum
