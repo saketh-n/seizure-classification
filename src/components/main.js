@@ -7,6 +7,20 @@ export default function Header() {
   const [result, setResult] = useState(null);
   const [file, setFile] = useState(null);
   const [fileData, setFileData] = useState(null);
+  let spectrogram = new Map();
+  // TODO: when moving on from Dummy, remove this.
+  spectrogram.set(
+    "channel 1",
+    "https://static-01.hindawi.com/articles/jam/volume-2014/261347/figures/261347.fig.001a.jpg"
+  );
+  spectrogram.set(
+    "channel 2",
+    "https://www.researchgate.net/profile/John-O-Toole/publication/43514277/figure/fig2/AS:614256932302896@1523461673601/A-frequency-domain-plot-of-newborn-EEG.png"
+  );
+  spectrogram.set(
+    "channel 3",
+    "https://www.biomedres.info/articles-images/biomedres-Single-channel-seizure-26-3-514-g002.png"
+  );
 
   useEffect(() => {
     if (file) {
@@ -62,7 +76,10 @@ export default function Header() {
             onChange={onFileChange}
             accept=".edf"
           />
-          {file && <Spectrogram />}
+          {
+            // TODO: Make sure spectrogram data isn't empty.
+          }
+          {file && <Spectrogram data={spectrogram} />}
         </div>
         {result && <BarChart width={550} height={400} data={result} />}
       </div>

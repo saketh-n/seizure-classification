@@ -5,6 +5,10 @@
 /.pnp
 .pnp.js
 
+# portability
+/api/__pycache__
+/api/venv
+
 # testing
 /coverage
 
