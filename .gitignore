@@ -11,6 +11,10 @@
 # production
 /build
 
+# portability
+/api/__pycache__
+/api/venv
+
 # misc
 .DS_Store
 .env.local
