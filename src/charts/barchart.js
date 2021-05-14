@@ -1,6 +1,12 @@
 import * as d3 from "d3";
 import React, { useRef, useEffect } from "react";
-import { predThreshold, red, green } from "../constants/constants";
+import {
+  predThreshold,
+  red,
+  green,
+  msToS,
+  edfLength
+} from "../constants/constants";
 
 export default function BarChart({
   width,
@@ -13,8 +19,10 @@ export default function BarChart({
   // - 50 for y-axis taking up 50 px of width
   // Another -20 for x-axis right padding
   // Another +10: ? Don't know but it just works lol
-  const barWidth = ((binWidth / 1000) * (width - 60)) / 100;
-  const barInterval = ((binInterval / 1000) * (width - 60)) / 100;
+  const barWidth = ((binWidth / msToS) * (width - 60)) / edfLength;
+  console.log(barWidth);
+  const barInterval = ((binInterval / msToS) * (width - 60)) / edfLength;
+  console.log(barInterval);
 
   useEffect(() => {
     const svg = d3
