@@ -1,12 +1,11 @@
 export default function BinModifier(props) {
-  const { binWidth, setBinWidth, binInterval, setBinInterval } = props;
+  const { binWidth, binInterval } = props;
 
-  const handleBinWidth = event => {
-    setBinWidth(event.target.value);
-  };
-
-  const handleBinInterval = event => {
-    setBinInterval(event.target.value);
+  const handleChange = event => {
+    // Grabs setBinInterval, setBinWidth from props
+    // Done this way to avoid redundancy and make code
+    // more extensible in future
+    props[`set${event.target.name}`](event.target.value);
   };
 
   return (
@@ -18,8 +17,9 @@ export default function BinModifier(props) {
           max="100000"
           type="number"
           className="w-24 rounded-lg py-1 px-2"
+          name="BinWidth"
           value={binWidth}
-          onChange={handleBinWidth}
+          onChange={handleChange}
         ></input>
       </div>
       <div className="flex ml-8 mt-4">
@@ -28,8 +28,9 @@ export default function BinModifier(props) {
           min="500"
           type="number"
           className="w-24 rounded-lg py-1 px-2"
+          name="BinInterval"
           value={binInterval}
-          onChange={handleBinInterval}
+          onChange={handleChange}
         ></input>
       </div>
     </>

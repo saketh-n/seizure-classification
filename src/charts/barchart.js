@@ -20,9 +20,7 @@ export default function BarChart({
   // Another -20 for x-axis right padding
   // Another +10: ? Don't know but it just works lol
   const barWidth = ((binWidth / msToS) * (width - 60)) / edfLength;
-  console.log(barWidth);
   const barInterval = ((binInterval / msToS) * (width - 60)) / edfLength;
-  console.log(barInterval);
 
   useEffect(() => {
     const svg = d3
@@ -58,7 +56,7 @@ export default function BarChart({
     return barcolor;
   };
 
-  // TODO: fix so it lines up properly w/ time
+  // TODO:
   // Need to make it scrollable for when you have too many bars
   const indexToXCoord = i => i * barInterval;
 
@@ -66,36 +64,63 @@ export default function BarChart({
     const svg = d3.select(ref.current);
     var selection = svg.selectAll("rect").data(data);
 
+    // TODO: Remove this when I have better way to viz summary stats
+    d3.selection.prototype.moveToFront = function() {
+      return this.each(function() {
+        this.parentNode.appendChild(this);
+      });
+    };
+
     var yScale = d3
       .scaleLinear()
       .domain([0, 1])
       .range([0, height - 45]);
 
+    // Model Confidence -> Summary Statistics
+    const prob = svg
+      .append("text")
+      .attr("transform", "translate(" + width / 2 + " ," + 40 + ")")
+      .style("text-anchor", "middle")
+      .style("font", "14px")
+      .text("");
+
+    function mouseover(d, i) {
+      d3.selectAll("rect").attr("fill-opacity", 0.1);
+      d3.select(this).attr("fill-opacity", 1);
+      // Weird quirk but i is data value here
+      prob.text(`Model Confidence - ${i.toFixed(2)}`).moveToFront();
+    }
+
+    function mouseleave(d) {
+      svg.selectAll("rect").attr("fill-opacity", 0.7);
+      prob.text("");
+    }
+
+    // Enter
     selection
       .enter()
       .append("rect")
       .attr("x", (d, i) => indexToXCoord(i))
       .attr("y", d => height)
+      .on("mouseover", mouseover)
+      .on("mouseleave", mouseleave)
+      .attr("pointer-events", "none")
       .attr("width", barWidth)
       .attr("height", 0)
       .attr("fill", d => probToColor(d))
       .attr("fill-opacity", 0.7)
-      .on("mouseover", (d, event) => {
-        console.log("here2");
-        console.log(this);
-        d3.select(this)
-          .transition()
-          .duration(50)
-          .attr("fill", "orange");
-      })
-      .on("mouseout", function(d, event) {})
       .transition()
       .duration(300)
       .attr("height", d => yScale(d))
       .attr("y", d => height - yScale(d))
-      .attr("transform", "translate(50, -30)");
+      .attr("transform", "translate(50, -30)")
+      .attr("pointer-events", "auto");
 
+    // Update
     selection
+      .on("mouseover", mouseover)
+      .on("mouseleave", mouseleave)
+      .attr("pointer-events", "none")
       .transition()
       .duration(300)
       .attr("height", d => yScale(d))
@@ -104,14 +129,17 @@ export default function BarChart({
       .attr("fill", d => probToColor(d))
       .attr("width", barWidth)
       .attr("fill-opacity", 0.7)
-      .attr("transform", "translate(50, -30)");
+      .attr("transform", "translate(50, -30)")
+      .attr("pointer-events", "auto");
 
+    // Exit/Clean-up during updates
     selection
       .exit()
       .transition()
       .duration(300)
       .attr("y", d => height)
       .attr("height", 0)
+      .attr("pointer-events", "none")
       .remove();
 
     // Add X axis

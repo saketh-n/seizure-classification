@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { apiUrl } from "../constants/constants";
+import { apiUrl, edfLength } from "../constants/constants";
 import BarChart from "../charts/barchart";
 import Spectrogram from "./spectrogram";
 import BinModifier from "./binmodifier";
@@ -8,8 +8,9 @@ export default function Header() {
   const [result, setResult] = useState(null);
   const [file, setFile] = useState(null);
   const [fileData, setFileData] = useState(null);
+  // Following are in ms
   const [binWidth, setBinWidth] = useState(10000);
-  const [binInterval, setBinInterval] = useState(500);
+  const [binInterval, setBinInterval] = useState(5000);
 
   let spectrogram = new Map();
   // TODO: when moving on from Dummy, remove this.
@@ -56,6 +57,7 @@ export default function Header() {
         data.append("filedata", fileData);
         data.append("binWidth", binWidth);
         data.append("binInterval", binInterval);
+        data.append("edfLength", edfLength);
 
         fetch(apiUrl, {
           method: "POST",
