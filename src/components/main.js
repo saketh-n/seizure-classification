@@ -2,11 +2,15 @@ import { useState, useEffect } from "react";
 import { apiUrl } from "../constants/constants";
 import BarChart from "../charts/barchart";
 import Spectrogram from "./spectrogram";
+import BinModifier from "./binmodifier";
 
 export default function Header() {
   const [result, setResult] = useState(null);
   const [file, setFile] = useState(null);
   const [fileData, setFileData] = useState(null);
+  const [binWidth, setBinWidth] = useState(10000);
+  const [binInterval, setBinInterval] = useState(500);
+
   let spectrogram = new Map();
   // TODO: when moving on from Dummy, remove this.
   spectrogram.set(
@@ -36,19 +40,32 @@ export default function Header() {
 
   const handleUpload = () => {
     if (file) {
-      const data = new FormData();
-      data.append("file", file);
-      // TODO: Encrypt the passed data
-      data.append("filedata", fileData);
+      if (!binWidth || binWidth < 10000 || binWidth > 100000) {
+        window.alert(
+          "Bin Width cannot be empty and must be a value between (10000 - 100000)"
+        );
+      } else if (!binInterval || binInterval < 500) {
+        // TODO: lower this min to 50, and make it scrollable, rn looks disgusting lol
+        window.alert(
+          "Bin Interval cannot be empty and must be a value greater than 500"
+        );
+      } else {
+        const data = new FormData();
+        data.append("file", file);
+        // TODO: Encrypt the passed data
+        data.append("filedata", fileData);
+        data.append("binWidth", binWidth);
+        data.append("binInterval", binInterval);
 
-      fetch(apiUrl, {
-        method: "POST",
-        body: data
-      })
-        .then(res => res.json())
-        .then(data => {
-          setResult(data.result);
-        });
+        fetch(apiUrl, {
+          method: "POST",
+          body: data
+        })
+          .then(res => res.json())
+          .then(data => {
+            setResult(data.result);
+          });
+      }
     } else {
       window.alert("No data selected!");
     }
@@ -79,9 +96,27 @@ export default function Header() {
           {
             // TODO: Make sure spectrogram data isn't empty.
           }
-          {file && <Spectrogram data={spectrogram} />}
+          {file && (
+            <>
+              <BinModifier
+                binWidth={binWidth}
+                setBinWidth={setBinWidth}
+                binInterval={binInterval}
+                setBinInterval={setBinInterval}
+              />
+              <Spectrogram data={spectrogram} />
+            </>
+          )}
         </div>
-        {result && <BarChart width={550} height={400} data={result} />}
+        {result && (
+          <BarChart
+            width={550}
+            height={400}
+            data={result}
+            binWidth={binWidth}
+            binInterval={binInterval}
+          />
+        )}
       </div>
     </>
   );

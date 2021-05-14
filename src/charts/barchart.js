@@ -2,8 +2,19 @@ import * as d3 from "d3";
 import React, { useRef, useEffect } from "react";
 import { predThreshold, red, green } from "../constants/constants";
 
-export default function BarChart({ width, height, data }) {
+export default function BarChart({
+  width,
+  height,
+  data,
+  binWidth,
+  binInterval
+}) {
   const ref = useRef();
+  // - 50 for y-axis taking up 50 px of width
+  // Another -20 for x-axis right padding
+  // Another +10: ? Don't know but it just works lol
+  const barWidth = ((binWidth / 1000) * (width - 60)) / 100;
+  const barInterval = ((binInterval / 1000) * (width - 60)) / 100;
 
   useEffect(() => {
     const svg = d3
@@ -39,81 +50,55 @@ export default function BarChart({ width, height, data }) {
     return barcolor;
   };
 
-  const indexToXCoord = i => i * 45;
+  // TODO: fix so it lines up properly w/ time
+  // Need to make it scrollable for when you have too many bars
+  const indexToXCoord = i => i * barInterval;
 
   const draw = () => {
     const svg = d3.select(ref.current);
     var selection = svg.selectAll("rect").data(data);
+
     var yScale = d3
       .scaleLinear()
       .domain([0, 1])
       .range([0, height - 45]);
 
     selection
-      .transition()
-      .duration(300)
-      .attr("height", d => yScale(d))
-      .attr("y", d => height - yScale(d))
-      .attr("fill", d => probToColor(d))
-      .attr("width", 60)
-      .attr("fill-opacity", 0.7)
-      .attr("transform", "translate(50, -30)");
-
-    selection
       .enter()
       .append("rect")
       .attr("x", (d, i) => indexToXCoord(i))
       .attr("y", d => height)
-      .attr("width", 60)
+      .attr("width", barWidth)
       .attr("height", 0)
       .attr("fill", d => probToColor(d))
       .attr("fill-opacity", 0.7)
+      .on("mouseover", (d, event) => {
+        console.log("here2");
+        console.log(this);
+        d3.select(this)
+          .transition()
+          .duration(50)
+          .attr("fill", "orange");
+      })
+      .on("mouseout", function(d, event) {})
       .transition()
       .duration(300)
       .attr("height", d => yScale(d))
       .attr("y", d => height - yScale(d))
       .attr("transform", "translate(50, -30)");
 
-    var label = svg.selectAll("text").data(data);
-
-    label
+    selection
       .transition()
       .duration(300)
       .attr("height", d => yScale(d))
-      .attr("y", d => height - yScale(d) + 15)
-      .text(d => `${d.toFixed(2)}`)
-      .attr("x", (d, i) => indexToXCoord(i) + 27)
-      .attr("font-size", "14px")
-      .attr("fill", "black")
-      .attr("text-anchor", "middle")
-      .attr("transform", "translate(50, -30)");
-
-    label
-      .enter()
-      .append("text")
-      .text(d => `${d.toFixed(2)}`)
-      .attr("x", (d, i) => indexToXCoord(i) + 27)
-      .attr("y", d => height)
-      .attr("font-family", "sans-serif")
-      .attr("height", 0)
-      .attr("font-size", "14px")
-      .attr("fill", "black")
-      .attr("text-anchor", "middle")
-      .transition()
-      .duration(300)
-      .attr("height", d => yScale(d))
-      .attr("y", d => height - yScale(d) + 15)
+      .attr("x", (d, i) => indexToXCoord(i))
+      .attr("y", d => height - yScale(d))
+      .attr("fill", d => probToColor(d))
+      .attr("width", barWidth)
+      .attr("fill-opacity", 0.7)
       .attr("transform", "translate(50, -30)");
 
     selection
-      .exit()
-      .transition()
-      .duration(300)
-      .attr("y", d => height)
-      .attr("height", 0)
-      .remove();
-
-    label
       .exit()
       .transition()
       .duration(300)
@@ -125,7 +110,7 @@ export default function BarChart({ width, height, data }) {
     var x = d3
       .scaleLinear()
       .domain([0, 100])
-      .range([40, width - 40]);
+      .range([40, width - 20]);
     svg
       .append("g")
       .attr("transform", "translate(10," + 370 + ")")
