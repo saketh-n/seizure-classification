@@ -16,8 +16,7 @@ def get_result():
     bin_width = int(request.form['binWidth'])
     bin_interval = int(request.form['binInterval'])
     # TODO: Eventually this dummy classifications array replaced w/ real deal
-    # TODO: hard-coding idea that edf file is only 100s long, in the future we'll pass it in
-    edf_length = 100
+    edf_length = int(request.form['edfLength'])
     num_of_bins = math.floor(((edf_length - (bin_width / 1000)) * 1000)/bin_interval) + 1
     results = []
     for i in range(num_of_bins):
