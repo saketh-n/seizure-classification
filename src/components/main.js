@@ -1,7 +1,6 @@
 import { useState, useEffect } from "react";
 import { apiUrl, edfLength } from "../constants/constants";
 import BarChart from "../charts/barchart";
-import Spectrogram from "./spectrogram";
 import BinModifier from "./binmodifier";
 
 export default function Header() {
@@ -11,21 +10,7 @@ export default function Header() {
   // Following are in ms
   const [binWidth, setBinWidth] = useState(10000);
   const [binInterval, setBinInterval] = useState(5000);
-
-  let spectrogram = new Map();
-  // TODO: when moving on from Dummy, remove this.
-  spectrogram.set(
-    "channel 1",
-    "https://static-01.hindawi.com/articles/jam/volume-2014/261347/figures/261347.fig.001a.jpg"
-  );
-  spectrogram.set(
-    "channel 2",
-    "https://www.researchgate.net/profile/John-O-Toole/publication/43514277/figure/fig2/AS:614256932302896@1523461673601/A-frequency-domain-plot-of-newborn-EEG.png"
-  );
-  spectrogram.set(
-    "channel 3",
-    "https://www.biomedres.info/articles-images/biomedres-Single-channel-seizure-26-3-514-g002.png"
-  );
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     if (file) {
@@ -58,7 +43,7 @@ export default function Header() {
         data.append("binWidth", binWidth);
         data.append("binInterval", binInterval);
         data.append("edfLength", edfLength);
-
+        setLoading(true);
         fetch(apiUrl, {
           method: "POST",
           body: data
@@ -66,6 +51,7 @@ export default function Header() {
           .then(res => res.json())
           .then(data => {
             setResult(data.result);
+            setLoading(false);
           });
       }
     } else {
@@ -77,14 +63,21 @@ export default function Header() {
     setFile(event.target.files[0]);
   };
 
+  const buttonStyle = () => {
+    let enabledButton =
+      "ml-32 bg-white p-5 shadow-lg bg-clip-padding bg-opacity-60 border border-gray-200 rounded-lg font-semibold w-40";
+    let disabledButton =
+      "ml-32 bg-gray-200 p-5 shadow-lg bg-clip-padding bg-opacity-60 text-opacity-25 text-gray-800 border border-gray-200 rounded-lg font-semibold w-40";
+    return loading ? disabledButton : enabledButton;
+  };
+
   return (
     <>
       <div className="mt-32 flex">
         <div className="flex flex-col">
           <button
-            className="ml-32 bg-white p-5 shadow-lg 
-    bg-clip-padding bg-opacity-60 border border-gray-200
-     rounded-lg font-semibold w-40"
+            className={buttonStyle()}
+            disabled={loading}
             onClick={handleUpload}
           >
             Upload Data
@@ -106,11 +99,11 @@ export default function Header() {
                 binInterval={binInterval}
                 setBinInterval={setBinInterval}
               />
-              <Spectrogram data={spectrogram} />
             </>
           )}
         </div>
-        {result && (
+        {loading && <h1>Loading...</h1>}
+        {result && !loading && (
           <BarChart
             width={550}
             height={400}
