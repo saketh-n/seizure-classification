@@ -88,7 +88,7 @@ export default function BarChart({
       d3.selectAll("rect").attr("fill-opacity", 0.1);
       d3.select(this).attr("fill-opacity", 1);
       // Weird quirk but i is data value here
-      prob.text(`Model Confidence - ${i.toFixed(2)}`).moveToFront();
+      prob.text(`Model Confidence : ${i.toFixed(2)}`).moveToFront();
     }
 
     function mouseleave(d) {
