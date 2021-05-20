@@ -40,6 +40,7 @@ export default function Header() {
         data.append("file", file);
         // TODO: Encrypt the passed data
         data.append("filedata", fileData);
+        data.append("filename", file.name);
         data.append("binWidth", binWidth);
         data.append("binInterval", binInterval);
         data.append("edfLength", edfLength);

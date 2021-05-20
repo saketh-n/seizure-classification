@@ -11,6 +11,9 @@
 # production
 /build
 
+# avoid huge commits
+/api/venv
+
 # misc
 .DS_Store
 .env.local
