@@ -24,8 +24,8 @@ def load_binary_eeg_net(weights='EEGNet-8-2-weights.h5'):
     if not path.exists(weights_file):
         raise FileNotFoundError(ENOENT, strerror(ENOENT), weights_file)
 
-    # load pre-trained weights
-    eeg_net.load_weights(weights_file)
+    # TODO: load pre-trained weights
+    #eeg_net.load_weights(weights_file)
 
     return eeg_net
 
