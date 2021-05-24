@@ -2,7 +2,6 @@ import random
 from flask import Flask, request
 from flask_cors import CORS, cross_origin
 import math
-import pdb
 import numpy as np
 from constants import load_edf, get_edf_length
 from plot_single_channels import plot_channels
@@ -46,7 +45,7 @@ def get_result():
     # But do it anyway to get an int
     bin_width_s = math.floor(bin_width / 1000)
     bin_int_s = bin_interval / 1000
-    # PRACTICE REAL DEAL! TODO: Remove
+    # Prediction for each bin
     for i in range(num_of_bins):
         # start of ith bin in milliseconds: i * bin_interval
         # Of course there are 128 data points in a second
@@ -56,18 +55,26 @@ def get_result():
         # end of ith bin = start of bin + bin width
         # Conversion: start of bin + (bin width * 128/1000)
         bin_end = bin_start + (bin_width_s * 128)
-        print(bin_start)
-        print(bin_end)
         curr_bin = prepr_edf_data[0:64, bin_start:bin_end]
         # bin_width > 1, but model expects 1 second each
         # Try passing batch of 1 sec
         batched_bins = np.zeros((bin_width_s, 64, 128, 1))
+        # Make bin into batch of 1 second slices
+        # Model expecting 1 second (128 samples)
         for i in range(bin_width_s):
             batch_start = i * 128
             batch_end = (i + 1) * 128
             batched_bins[i] = curr_bin[0:64, batch_start:batch_end]
         
-        pdb.set_trace()
-        eeg_net.predict(batched_bins)
+        # See documentation: 
+        # https://www.tensorflow.org/api_docs/python/tf/keras/Model#predict
+        # FYI: second argument is batch_size, default is 32
+        prob = eeg_net.predict(batched_bins, bin_width_s)
+        # TODO: We are making 2nd class, seizure prob, make sure
+        # this is reflected when you train model
+        predictions = prob[0:bin_width_s, 1]
+        # Aggregrate (Average) predictions for the batch
+        results.append(np.avg(predictions))
+        print(results)
 
     return {'result': results}

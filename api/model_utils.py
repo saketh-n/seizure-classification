@@ -5,6 +5,7 @@ from model import EEGNet
 from constants import WEIGHT_DIR
 from os import path, strerror
 from errno import ENOENT
+import pdb
 
 
 def load_binary_eeg_net(weights='EEGNet-8-2-weights.h5'):
@@ -24,7 +25,7 @@ def load_binary_eeg_net(weights='EEGNet-8-2-weights.h5'):
     if not path.exists(weights_file):
         raise FileNotFoundError(ENOENT, strerror(ENOENT), weights_file)
 
-    # TODO: load pre-trained weights
+    # TODO: Debug load weights!
     #eeg_net.load_weights(weights_file)
 
     return eeg_net
