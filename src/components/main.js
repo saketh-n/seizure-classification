@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { apiUrl, edfLength } from "../constants/constants";
+import { apiUrl, buttonStyle } from "../constants/constants";
 import BarChart from "../charts/barchart";
 import BinModifier from "./binmodifier";
 
@@ -43,7 +43,6 @@ export default function Header() {
         data.append("filename", file.name);
         data.append("binWidth", binWidth);
         data.append("binInterval", binInterval);
-        data.append("edfLength", edfLength);
         setLoading(true);
         fetch(apiUrl, {
           method: "POST",
@@ -64,12 +63,20 @@ export default function Header() {
     setFile(event.target.files[0]);
   };
 
-  const buttonStyle = () => {
-    let enabledButton =
-      "ml-32 bg-white p-5 shadow-lg bg-clip-padding bg-opacity-60 border border-gray-200 rounded-lg font-semibold w-40";
-    let disabledButton =
-      "ml-32 bg-gray-200 p-5 shadow-lg bg-clip-padding bg-opacity-60 text-opacity-25 text-gray-800 border border-gray-200 rounded-lg font-semibold w-40";
-    return loading ? disabledButton : enabledButton;
+  const loadBarChart = () => {
+    const edfLength =
+      (binInterval * (result.length - 1)) / 1000 + binWidth / 1000;
+    console.log(edfLength);
+    return (
+      <BarChart
+        width={550}
+        height={400}
+        data={result}
+        binWidth={binWidth}
+        binInterval={binInterval}
+        edfLength={edfLength}
+      />
+    );
   };
 
   return (
@@ -77,7 +84,7 @@ export default function Header() {
       <div className="mt-32 flex">
         <div className="flex flex-col">
           <button
-            className={buttonStyle()}
+            className={buttonStyle(loading)}
             disabled={loading}
             onClick={handleUpload}
           >
@@ -104,15 +111,7 @@ export default function Header() {
           )}
         </div>
         {loading && <h1>Loading...</h1>}
-        {result && !loading && (
-          <BarChart
-            width={550}
-            height={400}
-            data={result}
-            binWidth={binWidth}
-            binInterval={binInterval}
-          />
-        )}
+        {result && !loading && loadBarChart()}
       </div>
     </>
   );

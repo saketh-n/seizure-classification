@@ -13,8 +13,9 @@ export default function BinModifier(props) {
       <div className="flex ml-8 mt-4">
         <h1 className="w-32 my-1">Bin Width (ms): </h1>
         <input
-          min="10000"
+          min="1000"
           max="100000"
+          step="1000"
           type="number"
           className="w-24 rounded-lg py-1 px-2"
           name="BinWidth"
