@@ -41,5 +41,26 @@ You don’t have to ever use `eject`. The curated feature set is suitable for sm
 ### `yarn start-api`
 
 _Assumes python3 installed_
+Full list of commands (UNIX-BASED OS)
+
+    cd api
+    python3 -m venv venv
+    source venv/bin/activate
+
+(Windows)
+
+    cd api
+    python -m venv venv
+    venv\Scripts\activate
+
+(Instructions shared across OS):
+
+    pip install flask python-dotenv
+    pip install numpy
+    pip install flask-cors
+    pip install mne
+    pip install matplotlib
+    pip install tensorflow
+
 Simulates a local version of the backend. Run this in another terminal
 window while running the front-end or the api calls won't work.
