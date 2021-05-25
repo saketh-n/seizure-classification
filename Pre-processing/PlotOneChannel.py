@@ -5,9 +5,10 @@ import os
 
 
 #Load Data
-filename = '00003010_s003_t000'
+filename = '00000258_s001_t000'
 fileformat = '.edf'
-load_path = 'C:/Users/User/Desktop/CSE 481C - Neruo Capstone/Project Repo/Data/TUH/' + filename + fileformat
+load_path = 'C:/Users/User/Desktop/CSE 481C - Neruo Capstone/Project Repo/Data/TUSZ/v1.5.2/edf/dev/02_tcp_le/002/00000258/s001_2003_07_16/' \
+            + filename + fileformat
 print(load_path)
 raw = read_raw_edf(load_path, preload=True)
 
