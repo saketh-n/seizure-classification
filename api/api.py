@@ -23,22 +23,20 @@ def get_result():
     data = request.form['filedata']
     # Save passed data to file
     filename = request.form['filename']
-    # TODO: UNCOMMENT 3 LINES BELOW
-    #newFile = open("saved_data/" + filename, "w")
-    #newFile.write(data)
-    #newFile.close()
+    newFile = open("saved_data/" + filename, "w")
+    newFile.write(data)
+    newFile.close()
 
     raw = load_edf(filename)
     edf_length = get_edf_length(raw)
 
     prepr_edf_data = preprocess(raw)
 
-    #TODO: Uncomment
-    #plot_channels(filename, raw)
+    plot_channels(filename, raw)
 
     bin_width = int(request.form['binWidth'])
     bin_interval = int(request.form['binInterval'])
-    # TODO: Eventually this dummy classifications array replaced w/ real deal
+
     num_of_bins = math.floor(((edf_length - (bin_width / 1000)) * 1000)/bin_interval) + 1
     results = []
     # bin width is always a multiple of 1000, so no need to math floor
@@ -74,7 +72,6 @@ def get_result():
         # this is reflected when you train model
         predictions = prob[0:bin_width_s, 1]
         # Aggregrate (Average) predictions for the batch
-        results.append(np.avg(predictions))
-        print(results)
+        results.append(np.mean(predictions).astype(float))
 
     return {'result': results}

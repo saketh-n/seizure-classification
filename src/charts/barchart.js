@@ -1,11 +1,12 @@
 import * as d3 from "d3";
-import React, { useRef, useEffect } from "react";
+import React, { useRef, useEffect, useState } from "react";
 import {
   predThreshold,
   red,
   green,
   msToS,
-  edfLength
+  edfWindow,
+  buttonStyle
 } from "../constants/constants";
 
 export default function BarChart({
@@ -13,14 +14,44 @@ export default function BarChart({
   height,
   data,
   binWidth,
-  binInterval
+  binInterval,
+  edfLength
 }) {
   const ref = useRef();
+  const [window, setWindow] = useState(0);
   // - 50 for y-axis taking up 50 px of width
   // Another -20 for x-axis right padding
   // Another +10: ? Don't know but it just works lol
-  const barWidth = ((binWidth / msToS) * (width - 60)) / edfLength;
-  const barInterval = ((binInterval / msToS) * (width - 60)) / edfLength;
+  const barWidth = ((binWidth / msToS) * (width - 60)) / edfWindow;
+  const barInterval = ((binInterval / msToS) * (width - 60)) / edfWindow;
+
+  const nbinsInWindow = Math.ceil((data.length * edfWindow) / edfLength);
+
+  let dataWindows = [];
+
+  const nWindows = Math.ceil(edfLength / edfWindow);
+
+  for (let i = 0; i < nWindows; i++) {
+    const sliceStart = i * nbinsInWindow;
+    let sliceEnd = sliceStart + nbinsInWindow;
+
+    if (sliceEnd >= data.length) {
+      sliceEnd = data.length - 1;
+    }
+    dataWindows.push(data.slice(sliceStart, sliceEnd));
+  }
+
+  data = dataWindows[window];
+
+  const nextWindow = () => {
+    data = dataWindows[window + 1];
+    setWindow(window + 1);
+  };
+
+  const prevWindow = () => {
+    data = dataWindows[window - 1];
+    setWindow(window - 1);
+  };
 
   useEffect(() => {
     const svg = d3
@@ -56,12 +87,12 @@ export default function BarChart({
     return barcolor;
   };
 
-  // TODO:
-  // Need to make it scrollable for when you have too many bars
   const indexToXCoord = i => i * barInterval;
 
   const draw = () => {
     const svg = d3.select(ref.current);
+    svg.selectAll("*").remove();
+
     var selection = svg.selectAll("rect").data(data);
 
     // TODO: Remove this when I have better way to viz summary stats
@@ -145,7 +176,7 @@ export default function BarChart({
     // Add X axis
     var x = d3
       .scaleLinear()
-      .domain([0, 100])
+      .domain([window * 100, (window + 1) * 100])
       .range([40, width - 20]);
     svg
       .append("g")
@@ -181,8 +212,26 @@ export default function BarChart({
   };
 
   return (
-    <div className="chart ml-20">
-      <svg ref={ref}></svg>
+    <div className="flex flex-col">
+      <div className="chart ml-20">
+        <svg ref={ref}></svg>
+      </div>
+      <div className="flex flex-row mt-8">
+        <button
+          className={buttonStyle(window === 0)}
+          onClick={prevWindow}
+          disabled={window === 0}
+        >
+          {"< Prev"}
+        </button>
+        <button
+          className={buttonStyle(window === nWindows - 1)}
+          onClick={nextWindow}
+          disabled={window === nWindows - 1}
+        >
+          {"Next >"}
+        </button>
+      </div>
     </div>
   );
 }
