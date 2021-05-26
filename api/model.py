@@ -108,3 +108,12 @@ def EEGNet(nb_classes, channels=64, samples=128,
     softmax = Activation('softmax', name='softmax')(dense)
 
     return Model(inputs=input1, outputs=softmax)
+
+
+def simple_binary_classifier(nb_classes, channels=64, samples=128) -> Model:
+    input_layer = Input(shape=(channels, samples, 1))
+    flatten = Flatten(name='flatten')(input_layer)
+    hidden = Dense(nb_classes, name='hidden')(flatten)
+    output = Dense(nb_classes, name='output')(hidden)
+    softmax = Activation('softmax', name='softmax')(output)
+    return Model(inputs=input_layer, outputs=softmax)

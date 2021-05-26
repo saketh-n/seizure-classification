@@ -7,7 +7,7 @@ import math
 from constants import load_edf, get_edf_length
 from plot_single_channels import plot_channels
 from inference_preprocessing import preprocess
-from model_utils import load_binary_eeg_net, binary_classification
+from model_utils import load_binary_eeg_net, load_binary_mlp
 
 app = Flask(__name__)
 cors = CORS(app)
@@ -15,21 +15,24 @@ app.config['CORS_HEADERS'] = 'Content-Type'
 
 # Load model and weights on api start
 eeg_net = load_binary_eeg_net()
+mlp = load_binary_mlp()
+
 
 @app.route('/result', methods=['POST'])
 @cross_origin()
-
 def get_result():
     # Access the passed data in this manner. 
     data = request.form['filedata']
     # Save passed data to file
     filename = request.form['filename']
     results = []
-    saved_results = "saved_data/" + filename + "results.txt"
+    saved_results = "saved_data/" + filename.split('.')[0] + "_results.txt"
     filepath = "saved_data/" + filename
+    if not os.path.isdir("saved_data"):
+        os.mkdir("saved_data")
     was_cached = os.path.isfile(saved_results)
-    if (not(was_cached)):
-        newFile = open(filepath, "w")
+    if not was_cached:
+        newFile = open(filepath, "w+")
         newFile.write(data)
         newFile.close()
 
@@ -74,18 +77,21 @@ def get_result():
             # See documentation: 
             # https://www.tensorflow.org/api_docs/python/tf/keras/Model#predict
             # FYI: second argument is batch_size, default is 32
-            prob = eeg_net.predict(batched_bins, bin_width_s)
+            # prob = eeg_net.predict(batched_bins, bin_width_s)
+            prob = mlp.predict(batched_bins, bin_width_s)
+
             # TODO: We are making 2nd class, seizure prob, make sure
             # this is reflected when you train model
             predictions = prob[0:bin_width_s, 1]
-            # Aggregrate (Average) predictions for the batch
+
+            # Aggregate (Average) predictions for the batch
             result = np.mean(predictions).astype(float)
             results.append(result)
             results_file.write(str(result) + "\n")
         results_file.close()
     
     # Read results from file, if it was previously cached
-    if (was_cached):
+    if was_cached:
         results_file = open(saved_results, "r")
         lines = results_file.readlines()
         for line in lines:
