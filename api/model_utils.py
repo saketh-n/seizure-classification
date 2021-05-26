@@ -5,9 +5,7 @@ from model import EEGNet
 from constants import WEIGHT_DIR
 from os import path, strerror
 from errno import ENOENT
-import pdb
 import numpy as np
-import h5py
 
 
 def load_binary_eeg_net(weights='EEGNet-8-2-weights.h5'):
