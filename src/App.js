@@ -1,12 +1,23 @@
-import Header from "./components/header";
-import Main from "./components/main";
+import { BrowserRouter as Router, Switch, Route } from "react-router-dom";
+import Landing from "./pages/landing";
+import About from "./pages/about";
+import Works from "./pages/works";
 
 function App() {
   return (
-    <>
-      <Header />
-      <Main />
-    </>
+    <Router>
+      <Switch>
+        <Route exact path="/">
+          <Landing />
+        </Route>
+        <Route exact path="/about">
+          <About />
+        </Route>
+        <Route exact path="/how-it-works">
+          <Works />
+        </Route>
+      </Switch>
+    </Router>
   );
 }
 
