@@ -21,6 +21,8 @@ export default function Graph() {
   const [results, setResults] = useState(null);
   const [seizureBins, setSeizureBins] = useState([]);
   const [binCounter, setBinCounter] = useState(0);
+  const [xStart, setXStart] = useState(0);
+  const [xEnd, setXEnd] = useState(100);
 
   useEffect(() => {
     // Component Did Mount
@@ -37,6 +39,7 @@ export default function Graph() {
         console.log(data.channels);
         setChannels(data.channels);
         console.log(data.seizureBins);
+        setSeizureBins(data.seizureBins);
       });
   }, []);
 
@@ -55,15 +58,19 @@ export default function Graph() {
     window.push(results[binNum]);
     if (binNum > 0) {
       window.unshift(results[binNum - 1]);
+      //setXStart((binNum - 1) * 5);
     }
     if (binNum > 1) {
       window.unshift(results[binNum - 2]);
+      //setXStart((binNum - 2) * 5);
     }
     if (binNum < results.length - 1) {
       window.push(results[binNum + 1]);
+      //setXEnd((binNum + 1) * 5);
     }
     if (binNum < results.length - 2) {
       window.push(results[binNum + 2]);
+      //setXEnd((binNum + 2) * 5);
     }
     console.log(seizureBins);
     console.log(binNum);
@@ -91,11 +98,12 @@ export default function Graph() {
             {results && (
               <BarChart
                 data={dataWindow()}
-                binWidth={10000}
-                binInterval={5000}
+                binWidth={30000}
+                binInterval={15000}
                 width={240}
                 height={240}
-                edfLength={1500}
+                xStart={(seizureBins[binCounter] - 2) * 5}
+                xEnd={(seizureBins[binCounter] + 2) * 5}
               />
             )}
           </div>
@@ -103,10 +111,28 @@ export default function Graph() {
           <h1 className="w-96 h-72 bg-white rounded-lg mx-12">RAW EEG</h1>
         </div>
         <div className="flex justify-center mt-8">
-          <button className="py-4 px-12 bg-indigo-400 text-gray-700 font-sans mx-16 rounded-lg hover:text-gray-200 hover:shadow-lg focus:outline-none focus:shadow-none">
+          <button
+            onClick={() => {
+              let prevBin = binCounter - 1;
+              if (prevBin <= seizureBins.length) {
+                prevBin = seizureBins.length - 1;
+              }
+              setBinCounter(prevBin);
+            }}
+            className="py-4 px-12 bg-indigo-400 text-gray-700 font-sans mx-16 rounded-lg hover:text-gray-200 hover:shadow-lg focus:outline-none focus:shadow-none"
+          >
             {"< Prev"}
           </button>
-          <button className="py-4 px-12 bg-indigo-400 text-gray-700 font-sans mx-16 rounded-lg hover:text-gray-200 hover:shadow-lg focus:outline-none focus:shadow-none">
+          <button
+            onClick={() => {
+              let nextBin = binCounter + 1;
+              if (nextBin === seizureBins.length) {
+                nextBin = 0;
+              }
+              setBinCounter(nextBin);
+            }}
+            className="py-4 px-12 bg-indigo-400 text-gray-700 font-sans mx-16 rounded-lg hover:text-gray-200 hover:shadow-lg focus:outline-none focus:shadow-none"
+          >
             {"Next >"}
           </button>
         </div>
@@ -114,7 +140,7 @@ export default function Graph() {
           onClick={() => {
             history.push("/data-upload");
           }}
-          className="mt-8 py-4 px-12 bg-indigo-400 text-gray-700 font-sans mx-16 rounded-lg hover:text-gray-200 hover:shadow-lg focus:outline-none focus:shadow-none"
+          className="mt-2 py-4 px-12 bg-indigo-400 text-gray-700 font-sans mx-16 rounded-lg hover:text-gray-200 hover:shadow-lg focus:outline-none focus:shadow-none"
         >
           {"Re-Classify"}
         </button>
