@@ -1,11 +1,13 @@
 # Contains the functionality to preprocess EEG data,
 # load model weights and perform classification
 
-from model import EEGNet
+import torch
+import pickle
+import tensorflow.keras as keras
+from model import EEGNet, simple_binary_classifier, MLP
 from constants import WEIGHT_DIR
 from os import path, strerror
 from errno import ENOENT
-import numpy as np
 
 
 def load_binary_eeg_net(weights='EEGNet-8-2-weights.h5'):
@@ -31,10 +33,33 @@ def load_binary_eeg_net(weights='EEGNet-8-2-weights.h5'):
     return eeg_net
 
 
-def binary_classification(model, data):
+def load_binary_mlp(weights=''):
     """
-    performs binary classification on EEG data
-    :param model: the binary classification model
-    :param data: the EEG dataset to classify
+    Loads multi-layer perceptron (mlp) model for binary classification
+    :param weights: path to weights file
     """
-    return model.predict(data)
+    mlp = simple_binary_classifier(nb_classes=2)
+    if weights != '':
+        # check that model weights exist, throw error if not
+        weights_file = path.join(WEIGHT_DIR, weights)
+        if not path.exists(weights_file):
+            raise FileNotFoundError(ENOENT, strerror(ENOENT), weights_file)
+        mlp = keras.models.load_model(WEIGHT_DIR)
+
+    return mlp
+
+
+def load_pytorch_mlp(weights=''):
+    mlp = MLP()
+    if weights != '':
+        # check that model weights exist, throw error if not
+        weights_file = path.join(WEIGHT_DIR, weights)
+        if not path.exists(weights_file):
+            raise FileNotFoundError(ENOENT, strerror(ENOENT), weights_file)
+        mlp.load_state_dict(torch.load(weights_file))
+    return mlp
+
+
+def load_knn_model():
+    knn_model_path = path.join('../training/', 'knn_classifier.pkl')
+    return pickle.load(open(knn_model_path, 'rb'))

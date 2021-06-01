@@ -1,11 +1,10 @@
 import matplotlib
-matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 import mne
-from mne.io import concatenate_raws, read_raw_edf
-from constants import load_edf
-import numpy as np
 import os
+
+matplotlib.use('Agg')
+
 
 # Passing in raw to avoid memory expensive load_data repetition
 def plot_channels(filename, raw: mne.io.edf.edf.RawEDF):
@@ -14,8 +13,8 @@ def plot_channels(filename, raw: mne.io.edf.edf.RawEDF):
     len_channels = len(channel_names)
     
     # Make a directory
-    path = os.getcwd() + '/saved_plots/' + filename
-    os.mkdir(path)
+    path = os.getcwd() + '/saved_plots/' + filename.split('.')[0]
+    os.makedirs(path)
 
     raw_path = path + '/RAW/'
     os.mkdir(raw_path)

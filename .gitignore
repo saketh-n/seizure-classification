@@ -14,6 +14,10 @@
 # avoid huge commits
 /api/venv
 /api/__pycache__
+/api/saved_data
+/api/saved_plots
+.idea/
+venv/
 
 # misc
 .DS_Store
