@@ -180,7 +180,7 @@ export default function BarChart({
       .range([40, width - 20]);
     svg
       .append("g")
-      .attr("transform", "translate(10," + 370 + ")")
+      .attr("transform", "translate(10," + 210 + ")")
       .call(d3.axisBottom(x));
 
     // text label for the x axis
@@ -212,26 +212,8 @@ export default function BarChart({
   };
 
   return (
-    <div className="flex flex-col">
-      <div className="chart ml-20">
-        <svg ref={ref}></svg>
-      </div>
-      <div className="flex flex-row mt-8">
-        <button
-          className={buttonStyle(window === 0)}
-          onClick={prevWindow}
-          disabled={window === 0}
-        >
-          {"< Prev"}
-        </button>
-        <button
-          className={buttonStyle(window === nWindows - 1)}
-          onClick={nextWindow}
-          disabled={window === nWindows - 1}
-        >
-          {"Next >"}
-        </button>
-      </div>
+    <div className="chart">
+      <svg ref={ref}></svg>
     </div>
   );
 }
