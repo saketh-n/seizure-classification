@@ -15,7 +15,8 @@ export default function BarChart({
   data,
   binWidth,
   binInterval,
-  edfLength
+  xStart,
+  xEnd
 }) {
   const ref = useRef();
   const [window, setWindow] = useState(0);
@@ -24,34 +25,6 @@ export default function BarChart({
   // Another +10: ? Don't know but it just works lol
   const barWidth = ((binWidth / msToS) * (width - 60)) / edfWindow;
   const barInterval = ((binInterval / msToS) * (width - 60)) / edfWindow;
-
-  const nbinsInWindow = Math.ceil((data.length * edfWindow) / edfLength);
-
-  let dataWindows = [];
-
-  const nWindows = Math.ceil(edfLength / edfWindow);
-
-  for (let i = 0; i < nWindows; i++) {
-    const sliceStart = i * nbinsInWindow;
-    let sliceEnd = sliceStart + nbinsInWindow;
-
-    if (sliceEnd >= data.length) {
-      sliceEnd = data.length - 1;
-    }
-    dataWindows.push(data.slice(sliceStart, sliceEnd));
-  }
-
-  data = dataWindows[window];
-
-  const nextWindow = () => {
-    data = dataWindows[window + 1];
-    setWindow(window + 1);
-  };
-
-  const prevWindow = () => {
-    data = dataWindows[window - 1];
-    setWindow(window - 1);
-  };
 
   useEffect(() => {
     const svg = d3
@@ -176,7 +149,7 @@ export default function BarChart({
     // Add X axis
     var x = d3
       .scaleLinear()
-      .domain([window * 100, (window + 1) * 100])
+      .domain([xStart, xEnd])
       .range([40, width - 20]);
     svg
       .append("g")
