@@ -9,8 +9,9 @@ def spectral_power(raw, filename):
     channel_names = raw.info['ch_names']
 
     # Make a directory path
-    directory = filename + '_tfr_and_raw'
-    parent_path = 'C:/Users/User/Desktop/CSE 481C - Neruo Capstone/Project Repo/Data/GeneratedPlots/'
+    directory = filename + '_tfr_raw_spd'
+    # parent_path = 'C:/Users/User/Desktop/CSE 481C - Neruo Capstone/Project Repo/Data/GeneratedPlots/'
+    parent_path = os.getcwd() + '/saved_plots/'
     path = os.path.join(parent_path, directory)
 
     # If directory does not exist then make it
@@ -56,9 +57,9 @@ def plot_tfr_and_raw_bin_width_all_channel(raw, start, stop, filename, binNumber
     print(binNumber)
 
     # Make a directory path
-    directory = filename + '_tfr_and_raw'
-    parent_path = 'C:/Users/User/Desktop/CSE 481C - Neruo Capstone/Project Repo/Data/GeneratedPlots/'
-    # parent_path = os.getcwd() + '/saved_plots'
+    directory = filename + '_tfr_raw_spd'
+    # parent_path = 'C:/Users/User/Desktop/CSE 481C - Neruo Capstone/Project Repo/Data/GeneratedPlots/'
+    parent_path = os.getcwd() + '/saved_plots/'
     path = os.path.join(parent_path, directory)
 
     #If directory does not exist then make it
