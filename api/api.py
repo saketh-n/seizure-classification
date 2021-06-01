@@ -1,21 +1,25 @@
 import random
 import os
+import pickle
 from flask import Flask, request
 from flask_cors import CORS, cross_origin
 import numpy as np
 import math
-from constants import load_edf, get_edf_length
+from constants import load_edf, get_edf_length, load_fif
 from plot_single_channels import plot_channels
 from inference_preprocessing import preprocess
-from model_utils import load_binary_eeg_net, load_binary_mlp
+from model_utils import load_binary_eeg_net, load_binary_mlp, load_pytorch_mlp, load_knn_model
 
 app = Flask(__name__)
 cors = CORS(app)
 app.config['CORS_HEADERS'] = 'Content-Type'
 
 # Load model and weights on api start
-eeg_net = load_binary_eeg_net()
+# eeg_net = load_binary_eeg_net()
 mlp = load_binary_mlp()
+knn = load_knn_model()
+scaler = pickle.load(open('../training/scaler_tusz.sav', 'rb'))
+# pytorch_mlp = load_pytorch_mlp()
 
 
 @app.route('/result', methods=['POST'])
@@ -36,12 +40,15 @@ def get_result():
         newFile.write(data)
         newFile.close()
 
-        raw = load_edf(filename)
+        if filename.endswith('edf'):
+            raw = load_edf(filename)
+        else:
+            raw = load_fif(filename)
         edf_length = get_edf_length(raw)
 
         prepr_edf_data = preprocess(raw)
 
-        plot_channels(filename, raw)
+        # plot_channels(filename, raw)
 
         bin_width = int(request.form['binWidth'])
         bin_interval = int(request.form['binInterval'])
@@ -69,22 +76,18 @@ def get_result():
             batched_bins = np.zeros((bin_width_s, 64, 128, 1))
             # Make bin into batch of 1 second slices
             # Model expecting 1 second (128 samples)
-            for i in range(bin_width_s):
-                batch_start = i * 128
-                batch_end = (i + 1) * 128
-                batched_bins[i] = curr_bin[0:64, batch_start:batch_end]
-        
-            # See documentation: 
-            # https://www.tensorflow.org/api_docs/python/tf/keras/Model#predict
-            # FYI: second argument is batch_size, default is 32
-            # prob = eeg_net.predict(batched_bins, bin_width_s)
-            prob = mlp.predict(batched_bins, bin_width_s)
+            for j in range(bin_width_s):
+                batch_start = j * 128
+                batch_end = (j + 1) * 128
+                batched_bins[j] = curr_bin[0:64, batch_start:batch_end]
 
-            # TODO: We are making 2nd class, seizure prob, make sure
-            # this is reflected when you train model
-            predictions = prob[0:bin_width_s, 1]
+            bins_squeezed = batched_bins.squeeze(-1)
+            combined_samples = np.zeros((bin_width_s, 128))
+            for idx in range(bin_width_s):
+                combined_samples[idx] = bins_squeezed[idx].mean(axis=0)
 
-            # Aggregate (Average) predictions for the batch
+            combined_samples_tf = scaler.transform(combined_samples)
+            predictions = knn.predict(combined_samples_tf)
             result = np.mean(predictions).astype(float)
             results.append(result)
             results_file.write(str(result) + "\n")

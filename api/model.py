@@ -2,6 +2,7 @@
 # EEGNet architecture is from the original authors from the Army Research Laboratory
 # Source: https://github.com/vlawhern/arl-eegmodels/blob/master/EEGModels.py
 
+from torch import nn
 from tensorflow.keras.models import Model
 from tensorflow.keras.layers import Dense, Activation, Dropout
 from tensorflow.keras.layers import Conv2D, AveragePooling2D
@@ -117,3 +118,25 @@ def simple_binary_classifier(nb_classes, channels=64, samples=128) -> Model:
     output = Dense(nb_classes, name='output')(hidden)
     softmax = Activation('softmax', name='softmax')(output)
     return Model(inputs=input_layer, outputs=softmax)
+
+
+class MLP(nn.Module):
+    """
+      Multilayer Perceptron.
+    """
+    def __init__(self, nb_classes=2, channels=64, samples=128):
+        super().__init__()
+        self.layers = nn.Sequential(
+            # nn.Flatten(),
+            nn.Conv2d(samples, channels, 5),
+            nn.ReLU(),
+            # nn.Linear(samples, channels),
+            # nn.ReLU(),
+            # nn.Linear(64, 32),
+            # nn.ReLU(),
+            nn.Linear(channels, nb_classes)
+         )
+
+    def forward(self, x):
+        """Forward pass"""
+        return self.layers(x)
