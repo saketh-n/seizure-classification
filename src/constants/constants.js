@@ -1,4 +1,6 @@
 export const apiUrl = "http://localhost:5000/result";
+export const wasCached = "http://localhost:5000/was-cached";
+export const backend = "http://localhost:5000";
 export const red = [238, 75, 43];
 export const green = [80, 200, 120];
 // Above this value we should consider this a seizure
