@@ -160,6 +160,7 @@ export default function Tool() {
       </div>
       <div className="mt-48 ml-16 w-1/3 bg-gray-200 rounded-xl mb-32">
         {/* File Upload */}
+        {/*TODO: You cannot drag and drop yet! */}
         <div className="mx-12 mt-8 bg-gray-300 shadow-inner h-24 rounded-lg">
           {chooseFile()}
         </div>
@@ -193,7 +194,6 @@ export default function Tool() {
           type="range"
           min="1"
           max="99"
-          class="slider"
           value={threshold}
           onChange={handleSlider}
         ></input>
