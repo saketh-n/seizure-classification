@@ -7,6 +7,9 @@ if __name__ == '__main__':
     load_path, filename = load()
     raw = read_raw_edf(load_path, preload=True)
 
+    #Bandpass filter 0.1Hz - 50Hz
+    raw = raw.filter(0.1, 50)
+
     # Resample to 100 Hz
     raw = raw.resample(100, npad='auto')
 
