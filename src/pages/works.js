@@ -47,7 +47,7 @@ export default function Works() {
             imgSrc={"https://i.ibb.co/sPjY4qw/results.png"}
             title={"Results"}
             paragraph="The resulting output is a group of time intervals where seizures 
-            are though to have occurred"
+            are thought to have occurred"
           />
         </div>
       </div>

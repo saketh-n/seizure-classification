@@ -1,11 +1,10 @@
 import matplotlib
-matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 import mne
-from mne.io import concatenate_raws, read_raw_edf
-from constants import load_edf
-import numpy as np
 import os
+
+matplotlib.use('Agg')
+
 
 # Passing in raw to avoid memory expensive load_data repetition
 def plot_channels(filename, raw: mne.io.edf.edf.RawEDF, socketio):
@@ -36,10 +35,10 @@ def plot_channels(filename, raw: mne.io.edf.edf.RawEDF, socketio):
         plt.ylabel('$\mu V$')
         plt.title('Channel: ' + str(requiredChannel))
         saveNameRAW = raw_path + requiredChannel + '.png'
-        plt.savefig(saveNameRAW, dpi = 300)
+        plt.savefig(saveNameRAW, dpi=300)
         
         # Power spectrum
         psd_fig = copy.plot_psd(show=False)
         saveNamePower = psd_path + requiredChannel + '.png'
-        psd_fig.savefig(saveNamePower, dpi = 300)
+        psd_fig.savefig(saveNamePower, dpi=300)
         socketio.emit('plotPass', {'value': i})
