@@ -84,6 +84,63 @@ export default function Graph() {
     return window;
   };
 
+  const displayGraphs = () => {
+    if (seizureBins) {
+      if (channel) {
+        return (
+          <div className="py-8 mt-4 mx-8 flex flex-row bg-gray-100 rounded-lg">
+            <div className="w-96 h-72 bg-white rounded-lg mx-12">
+              <h1 className="text-center text-gray-700 font-sans mt-1">
+                Seizure Probabilities
+              </h1>
+              {results && (
+                <BarChart
+                  data={dataWindow()}
+                  binWidth={30000}
+                  binInterval={15000}
+                  width={240}
+                  height={240}
+                  xStart={(seizureBins[binCounter] - 2) * 5}
+                  xEnd={(seizureBins[binCounter] + 2) * 5}
+                />
+              )}
+            </div>
+            <img
+              alt=""
+              src={getTfr(channel, seizureBins[binCounter], filename)}
+              className="w-80 h-72 bg-white rounded-lg mx-12"
+            />
+            <img
+              alt=""
+              src={getRaw(channel, seizureBins[binCounter], filename)}
+              className="w-80 h-72 bg-white rounded-lg mx-12"
+            />
+          </div>
+        );
+      } else {
+        return (
+          <div className="py-8 mt-4 mx-8 flex flex-row bg-gray-100 rounded-lg">
+            <div className="w-full h-72 bg-white rounded-lg mx-12">
+              <h1 className="text-center text-gray-700 font-sans mt-24 text-6xl">
+                Select a Channel
+              </h1>
+            </div>
+          </div>
+        );
+      }
+    } else {
+      return (
+        <div className="py-8 mt-4 mx-8 flex flex-row bg-gray-100 rounded-lg">
+          <div className="w-full h-72 bg-white rounded-lg mx-12">
+            <h1 className="text-center text-gray-700 font-sans mt-24 text-6xl">
+              No Seizures Detected
+            </h1>
+          </div>
+        </div>
+      );
+    }
+  };
+
   const handleChannel = event => {
     setChannel(event.target.value);
   };
@@ -105,35 +162,7 @@ export default function Graph() {
             {channelOptions()}
           </select>
         </div>
-
-        <div className="py-8 mt-4 mx-8 flex flex-row bg-gray-100 rounded-lg">
-          <div className="w-96 h-72 bg-white rounded-lg mx-12">
-            <h1 className="text-center text-gray-700 font-sans mt-1">
-              Seizure Probabilities
-            </h1>
-            {results && (
-              <BarChart
-                data={dataWindow()}
-                binWidth={30000}
-                binInterval={15000}
-                width={240}
-                height={240}
-                xStart={(seizureBins[binCounter] - 2) * 5}
-                xEnd={(seizureBins[binCounter] + 2) * 5}
-              />
-            )}
-          </div>
-          <img
-            alt=""
-            src={getTfr(channel, seizureBins[binCounter], filename)}
-            className="w-80 h-72 bg-white rounded-lg mx-12"
-          />
-          <img
-            alt=""
-            src={getRaw(channel, seizureBins[binCounter], filename)}
-            className="w-80 h-72 bg-white rounded-lg mx-12"
-          />
-        </div>
+        {displayGraphs()}
         <div className="flex justify-center mt-8">
           <button
             onClick={() => {
