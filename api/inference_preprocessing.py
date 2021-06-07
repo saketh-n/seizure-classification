@@ -2,6 +2,7 @@ import mne
 import numpy as np 
 import math
 
+
 # Pre-processes 'raw' edf data
 # Returns pre-processed edf data as a ndarray to pass to model
 def preprocess(raw: mne.io.edf.edf.RawEDF):
@@ -11,9 +12,7 @@ def preprocess(raw: mne.io.edf.edf.RawEDF):
     freqs = range(60, nyquist_freq, 60)
     # Notch filter
     notch_filtered = mne.filter.notch_filter(raw._data, samp_freq, freqs)
-    # TODO: Bandpass filter
-    # TODO: Referencing op
-    # Downsampling
+    # Down sampling
     notch_filtered = mne.io.RawArray(notch_filtered, raw.info)
     downsampled = notch_filtered.resample(samp_freq / 2)._data
     # Reshape to have 64 channels, to fit model
