@@ -2,6 +2,8 @@
 
 In the project directory, you can run:
 
+_Assumes you have yarn, npm & pip installed_
+
 ### `yarn start`
 
 Runs the app in the development mode.\
@@ -12,6 +14,14 @@ You will also see any lint errors in the console.
 
 Note: If you get a warning about run-p not being found
 Run `npm i npm-run-all`
+
+Required npm installs:
+
+    npm install react
+    npm install react-router-dom
+    npm install d3
+    npm install socket.io-client
+    npm install react-dom
 
 ### `yarn test`
 
@@ -41,6 +51,7 @@ You don’t have to ever use `eject`. The curated feature set is suitable for sm
 ### `yarn start-api`
 
 _Assumes python3 installed_
+
 Full list of commands (UNIX-BASED OS)
 
     cd api
@@ -61,6 +72,9 @@ Full list of commands (UNIX-BASED OS)
     pip install mne
     pip install matplotlib
     pip install tensorflow
+    pip install pickle
+    pip install flask
+    pip install flask_socketio
 
 Simulates a local version of the backend. Run this in another terminal
 window while running the front-end or the api calls won't work.
