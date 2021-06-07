@@ -1,6 +1,7 @@
 # Contains the functionality to preprocess EEG data,
 # load model weights and perform classification
 
+import pickle
 from model import EEGNet
 from constants import WEIGHT_DIR
 from os import path, strerror
@@ -38,3 +39,7 @@ def binary_classification(model, data):
     :param data: the EEG dataset to classify
     """
     return model.predict(data)
+
+def load_knn_model():
+    knn_model_path = path.join('../training/', 'knn_classifier.pkl')
+    return pickle.load(open(knn_model_path, 'rb'))

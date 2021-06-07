@@ -18,11 +18,10 @@ export default function Graph() {
   const { filename } = useParams();
   const history = useHistory();
   const [channels, setChannels] = useState([]);
+  const [channel, setChannel] = useState(null);
   const [results, setResults] = useState(null);
   const [seizureBins, setSeizureBins] = useState([]);
   const [binCounter, setBinCounter] = useState(0);
-  const [xStart, setXStart] = useState(0);
-  const [xEnd, setXEnd] = useState(100);
 
   useEffect(() => {
     // Component Did Mount
@@ -34,17 +33,27 @@ export default function Graph() {
     })
       .then(res => res.json())
       .then(data => {
-        console.log(data.results);
         setResults(data.results);
-        console.log(data.channels);
         setChannels(data.channels);
-        console.log(data.seizureBins);
         setSeizureBins(data.seizureBins);
       });
   }, []);
 
+  const commonPathTfrRaw = (chan, binN, file, type) => {
+    console.log(binN);
+    console.log(chan);
+    return `http://localhost:5000/saved_plots/${file}_tfr_raw_spd/${file}_bn${binN}_${chan}_${type}.png`;
+  };
+
+  const getTfr = (chan, binN, file) => {
+    return commonPathTfrRaw(chan, binN, file, "tfr");
+  };
+
+  const getRaw = (chan, binN, file) => {
+    return commonPathTfrRaw(chan, binN, file, "raw");
+  };
+
   const channelOptions = () => {
-    console.log(channels);
     return channels.map((c, i) => (
       <option value={c} key={i}>
         {c}
@@ -72,10 +81,11 @@ export default function Graph() {
       window.push(results[binNum + 2]);
       //setXEnd((binNum + 2) * 5);
     }
-    console.log(seizureBins);
-    console.log(binNum);
-    console.log(window);
     return window;
+  };
+
+  const handleChannel = event => {
+    setChannel(event.target.value);
   };
 
   return (
@@ -85,7 +95,13 @@ export default function Graph() {
           {filename.toUpperCase()} Visualized
         </h1>
         <div className="flex justify-center">
-          <select name="channel" className="w-48 p-1 mt-12 rounded-lg">
+          <h1 className="mt-12 mr-4 text-gray-700 font-sans">Channels</h1>
+          <select
+            name="channel"
+            className="w-48 p-1 mt-12 rounded-lg"
+            value={channel}
+            onChange={handleChannel}
+          >
             {channelOptions()}
           </select>
         </div>
@@ -107,8 +123,16 @@ export default function Graph() {
               />
             )}
           </div>
-          <h1 className="w-96 h-72 bg-white rounded-lg mx-12">TFR</h1>
-          <h1 className="w-96 h-72 bg-white rounded-lg mx-12">RAW EEG</h1>
+          <img
+            alt=""
+            src={getTfr(channel, seizureBins[binCounter], filename)}
+            className="w-80 h-72 bg-white rounded-lg mx-12"
+          />
+          <img
+            alt=""
+            src={getRaw(channel, seizureBins[binCounter], filename)}
+            className="w-80 h-72 bg-white rounded-lg mx-12"
+          />
         </div>
         <div className="flex justify-center mt-8">
           <button

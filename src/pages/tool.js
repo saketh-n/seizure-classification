@@ -193,7 +193,6 @@ export default function Tool() {
           type="range"
           min="1"
           max="99"
-          class="slider"
           value={threshold}
           onChange={handleSlider}
         ></input>

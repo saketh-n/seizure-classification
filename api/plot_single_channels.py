@@ -8,10 +8,11 @@ import numpy as np
 import os
 
 # Passing in raw to avoid memory expensive load_data repetition
-def plot_channels(filename, raw: mne.io.edf.edf.RawEDF):
+def plot_channels(filename, raw: mne.io.edf.edf.RawEDF, socketio):
     # Inspect the .edf file
     channel_names = raw.info['ch_names']
     len_channels = len(channel_names)
+    socketio.emit('lenChannels', {'value': len_channels})
     
     # Make a directory
     path = os.getcwd() + '/saved_plots/' + filename
@@ -41,3 +42,4 @@ def plot_channels(filename, raw: mne.io.edf.edf.RawEDF):
         psd_fig = copy.plot_psd(show=False)
         saveNamePower = psd_path + requiredChannel + '.png'
         psd_fig.savefig(saveNamePower, dpi = 300)
+        socketio.emit('plotPass', {'value': i})
