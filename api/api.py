@@ -8,6 +8,7 @@ from flask_cors import CORS, cross_origin
 from flask_socketio import SocketIO
 from inference_preprocessing import preprocess
 from model_utils import load_knn_model, load_edf, get_edf_length
+from tfr_raw_psd import plot_tfr_and_raw_bin_width_all_channel
 
 app = Flask(__name__)
 socketio = SocketIO(app, cors_allowed_origins="http://localhost:3000")
@@ -37,14 +38,11 @@ def get_result():
     # Access the passed data in this manner.
     filename = request.form['filename']
     print('files_attr', request.files)
-    edf_file = request.files['file']
-    print('filetype', type(edf_file))
-    data = request.form['filedata']
-    print('datatype', type(data))
-    # Save passed data to file
 
     print('filename', filename)
     results = []
+    seizure_bins = []
+    channels = []
     saved_results = "saved_data/" + filename.split('.')[0] + "_results.txt"
     saved_seizure_bins = "saved_data/" + filename.split('.')[0] + "_bins.txt"
     saved_channels = "saved_data/" + filename.split('.')[0] + "_channels.txt"
@@ -54,6 +52,12 @@ def get_result():
         os.mkdir("saved_data")
     was_cached = os.path.isfile(saved_results)
     if not was_cached:
+        edf_file = request.files['file']
+        print('filetype', type(edf_file))
+        data = request.form['filedata']
+        print('datatype', type(data))
+
+        # Save passed data to file
         edf_file.save(filepath)
         socketio.emit('dataReceipt', {'value': True})
 
@@ -71,7 +75,7 @@ def get_result():
         threshold = int(request.form['threshold']) / 100
 
         print('edf_length', edf_length)
-        num_of_bins = math.floor(((edf_length - (bin_width / 1000)) * 1000) / bin_interval) + 1
+        num_of_bins = math.floor(((edf_length - (bin_width)) * 1000) / bin_interval) + 1
         socketio.emit('numberBins', {'value': num_of_bins})
         print('num_of_bins', num_of_bins)
 
@@ -82,9 +86,8 @@ def get_result():
         for chan in channels:
             channels_file.write(str(chan) + "\n")
         channels_file.close()
-        # bin width is always a multiple of 1000, so no need to math floor
-        # But do it anyway to get an int
-        bin_width_s = math.floor(bin_width / 1000)
+
+        bin_width_s = bin_width
         print('bin_width_s', bin_width_s)
         bin_int_s = bin_interval / 1000
         print('bin_int_s', bin_int_s)
@@ -92,11 +95,11 @@ def get_result():
         for i in range(num_of_bins):
             # start of ith bin in milliseconds: i * bin_interval
             # Of course there are 128 data points in a second
-            # So proper formula is i * bin_interval * 128/1000
+            # So proper formula is i * bin_interval_seconds * 128
             # Round down
             bin_start = math.floor(i * bin_int_s * 128)
             # end of ith bin = start of bin + bin width
-            # Conversion: start of bin + (bin width * 128/1000)
+            # Conversion: start of bin + (bin width * 128)
             bin_end = bin_start + (bin_width_s * 128)
             curr_bin = prepr_edf_data[0:64, bin_start:bin_end]
             # bin_width > 1, but model expects 1 second each

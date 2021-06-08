@@ -60,10 +60,14 @@ def plot_tfr_and_raw_bin_width_all_channel(raw, start, stop, filename, binNumber
     directory = filename + '_tfr_raw_spd'
     # parent_path = 'C:/Users/User/Desktop/CSE 481C - Neruo Capstone/Project Repo/Data/GeneratedPlots/'
     parent_path = os.getcwd() + '/saved_plots/'
+    #If directory (saved_plots) does not exist then make it
+    if not os.path.isdir(parent_path):
+        os.mkdir(parent_path)
+
     path = os.path.join(parent_path, directory)
 
     #If directory does not exist then make it
-    if(os.path.exists(path) == False):
+    if not os.path.isdir(path):
         os.mkdir(path)
 
     for i in range(len(channel_names)):
