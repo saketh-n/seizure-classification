@@ -72,9 +72,8 @@ Full list of commands (UNIX-BASED OS)
     pip install mne
     pip install matplotlib
     pip install tensorflow
-    pip install pickle
-    pip install flask
     pip install flask_socketio
+    pip install sklearn
 
 Simulates a local version of the backend. Run this in another terminal
 window while running the front-end or the api calls won't work.
