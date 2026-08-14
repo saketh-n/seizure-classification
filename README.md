@@ -4,7 +4,7 @@ A web tool for automated seizure detection in EEG recordings. Upload an `.edf` f
 
 Built as a capstone project for **CSE 481C (Neural Engineering)** at the University of Washington by Saketh Nimmagadda, Robert Minneker, and Devyansh Gupta.
 
-![Results view: seizure probability bar chart with time-frequency and raw EEG plots](docs/screenshots/results.png)
+![Landing page](docs/screenshots/landing.png)
 
 *Screenshots in this README show the app classifying a demo recording assembled from the TUSZ-derived test features committed in `training/df_test_tusz.csv` — real TUSZ recordings cannot be redistributed.*
 
@@ -19,6 +19,8 @@ Built as a capstone project for **CSE 481C (Neural Engineering)** at the Univers
 ![Live classification progress bar](docs/screenshots/classifying.png)
 
 **Review.** Every window whose probability exceeds the threshold gets a detail view: a d3 bar chart of the probabilities around the detection (colored green → red by confidence), plus a Morlet-wavelet time–frequency plot and the raw EEG trace for any channel you select. Results are cached server-side, so re-uploading the same filename jumps straight to the results.
+
+![Results view: seizure probability bar chart with time-frequency and raw EEG plots](docs/screenshots/results.png)
 
 ## Repository layout
 
@@ -89,7 +91,3 @@ This is a research prototype from 2021, not a medical device. In particular:
 - **Results page quirks.** Plots render only after a channel is selected; the probability chart's x-axis assumes a fixed 5 s bin spacing rather than the values you chose; recordings are cached by filename only, so re-uploading a *different* file with the same name returns stale results.
 - **No authentication and no tests.** The API serves files by relative path without restriction and should only ever run locally; `yarn test` finds no frontend tests.
 - **Link-rotted artwork.** Some page imagery is hotlinked from third-party hosts and no longer resolves (most visibly the illustration cards on the How-it-works page).
-
-## Screenshots
-
-![Landing page](docs/screenshots/landing.png)
