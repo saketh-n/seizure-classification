@@ -1,79 +1,95 @@
-## Available Scripts
+# Seizure Classification
 
-In the project directory, you can run:
+A web tool for automated seizure detection in EEG recordings. Upload an `.edf` file, and a KNN classifier scores overlapping time windows of the recording for seizure activity — streaming progress live to the browser and visualizing every flagged window with probability charts, raw traces, and time–frequency plots.
 
-_Assumes you have yarn, npm & pip installed_
+Built as a capstone project for **CSE 481C (Neural Engineering)** at the University of Washington by Saketh Nimmagadda, Robert Minneker, and Devyansh Gupta.
 
-### `yarn start`
+![Results view: seizure probability bar chart with time-frequency and raw EEG plots](docs/screenshots/results.png)
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
+*Screenshots in this README show the app classifying a demo recording assembled from the TUSZ-derived test features committed in `training/df_test_tusz.csv` — real TUSZ recordings cannot be redistributed.*
 
-The page will reload if you make edits.\
-You will also see any lint errors in the console.
+## How it works
 
-Note: If you get a warning about run-p not being found
-Run `npm i npm-run-all`
+**Upload.** A clinician selects an EEG recording (`.edf`) and chooses how the recording should be windowed: the *bin width* (1–30 s window of EEG scored at a time), the *bin spacing* (0.5–20 s stride between windows), and the *probability threshold* above which a window is flagged as a seizure.
 
-Required npm installs:
+![Upload page with bin width, bin spacing and threshold controls](docs/screenshots/upload.png)
 
-    npm install react
-    npm install react-router-dom
-    npm install d3
-    npm install socket.io-client
-    npm install react-dom
+**Classify.** The Flask backend loads the EDF with [MNE](https://mne.tools), applies a 60 Hz notch filter, downsamples, and normalizes the recording to 64 channels. Each window is split into one-second segments, averaged across channels, standardized, and scored by a K-nearest-neighbors classifier trained on the Temple University Hospital Seizure Corpus (TUSZ). The fraction of one-second segments voted "seizure" becomes the window's probability. Progress streams to the UI over Socket.IO as each window is scored.
 
-### `yarn test`
+![Live classification progress bar](docs/screenshots/classifying.png)
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+**Review.** Every window whose probability exceeds the threshold gets a detail view: a d3 bar chart of the probabilities around the detection (colored green → red by confidence), plus a Morlet-wavelet time–frequency plot and the raw EEG trace for any channel you select. Results are cached server-side, so re-uploading the same filename jumps straight to the results.
 
-### `yarn build`
+## Repository layout
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+```
+├── src/            React frontend (React 17, react-router, d3, Tailwind CSS)
+│   ├── pages/      Landing, About, How-it-works, Upload, Progress, Results
+│   └── charts/     d3 bar chart of per-window seizure probabilities
+├── api/            Flask + Flask-SocketIO inference backend
+│   ├── api.py                      /result, /was-cached, plot-serving routes
+│   ├── inference_preprocessing.py  notch filter, downsample, 64-channel reshape
+│   └── tfr_raw_psd.py              Morlet TFR + raw trace plot generation
+└── training/       Offline training: notebooks, datasets, model artifacts
+    ├── offline_training_new.ipynb  sklearn/XGBoost models → the deployed KNN
+    ├── offline_training.ipynb      EEGNet (Keras) experiments
+    ├── data_preparation.ipynb      TUSZ EDF → training arrays
+    └── knn_classifier.pkl          deployed model (+ scaler_tusz.sav)
+```
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+## Getting started
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+Two processes run side by side: the React dev server (port 3000) and the Flask API (port 5000).
 
-### `yarn eject`
+### Prerequisites
 
-**Note: this is a one-way operation. Once you `eject`, you can’t go back!**
+- **Node 16** and **Yarn** — the frontend uses `react-scripts` 4, which does not run on Node 17+ (`ERR_PACKAGE_PATH_NOT_EXPORTED` from its postcss toolchain). With [nvm](https://github.com/nvm-sh/nvm): `nvm install 16 && nvm use 16 && npm install -g yarn`.
+- **Python 3.9** — the pinned scientific stack (see `api/requirements.txt`) has wheels for 3.9; newer Pythons will not resolve `scikit-learn==1.0.2`.
 
-If you aren’t satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+### 1. Frontend
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you’re on your own.
+```bash
+yarn install
+yarn start          # http://localhost:3000
+```
 
-You don’t have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn’t feel obligated to use this feature. However we understand that this tool wouldn’t be useful if you couldn’t customize it when you are ready for it.
+### 2. Backend (separate terminal)
 
-### `yarn start-api`
+```bash
+cd api
+python3.9 -m venv venv
+source venv/bin/activate     # Windows: venv\Scripts\activate
+pip install -r requirements.txt
+cd ..
+yarn start-api               # Flask on http://127.0.0.1:5000
+```
 
-_Assumes python3 installed_
+The API loads `training/knn_classifier.pkl` and `training/scaler_tusz.sav` (both committed) at startup, so the first request is ready as soon as Flask boots.
 
-Full list of commands (UNIX-BASED OS)
+> **macOS note:** AirPlay Receiver also listens on port 5000. Flask still binds `127.0.0.1:5000` successfully, but if your browser resolves `localhost` to the IPv6 `::1`, requests will hit AirPlay (HTTP 403) instead of Flask. If uploads never reach the API, turn off *System Settings → General → AirDrop & Handoff → AirPlay Receiver*.
 
-    cd api
-    python3 -m venv venv
-    source venv/bin/activate
+### Using the tool
 
-(Windows)
+1. Open http://localhost:3000 and click **Get Started**.
+2. Choose an `.edf` file. The recording's channel names must follow TUH-style naming and include `EEG CZ-LE`, which the plotting code uses as the EEG reference — TUSZ recordings qualify; EDFs with other montages will classify but fail during plot generation.
+3. Set bin width (seconds), bin spacing (milliseconds, multiples of 500), and the seizure probability threshold.
+4. Upload. When classification finishes you are redirected to the results page — pick a channel from the dropdown to render the plots, and use **Prev / Next** to step through flagged windows.
 
-    cd api
-    python -m venv venv
-    venv\Scripts\activate
+## Model and training
 
-(Instructions shared across OS):
+The deployed model is a scikit-learn KNN classifier over standardized one-second, channel-averaged EEG segments (128 samples at 128 Hz), trained on a subset of the [Temple University Hospital EEG Seizure Corpus](https://isip.piconepress.com/projects/nedc/html/tuh_eeg/) (access requires TUSZ's data use agreement; raw recordings are therefore not committed, but the derived train/test feature CSVs are). The `training/` directory also contains earlier experiments — an EEGNet-8,2 implementation in Keras with a TensorFlow Datasets builder for TUSZ, and notebooks exploring other classical models on the [Kaggle Epileptic Seizure Recognition dataset](https://www.kaggle.com/datasets/harunshimanto/epileptic-seizure-recognition) — that did not ship in the serving path.
 
-    pip install flask python-dotenv
-    pip install numpy
-    pip install flask-cors
-    pip install mne
-    pip install matplotlib
-    pip install tensorflow
-    pip install flask_socketio
-    pip install sklearn
+## Known limitations
 
-Simulates a local version of the backend. Run this in another terminal
-window while running the front-end or the api calls won't work.
+This is a research prototype from 2021, not a medical device. In particular:
+
+- **Not clinically validated.** Outputs are model scores on windowed data, nothing more.
+- **TUH-style EDFs only.** Plot generation hard-codes `EEG CZ-LE` as the reference channel and fails on other montages.
+- **Pinned, dated dependencies.** The committed model was pickled with scikit-learn 0.23; a compatibility alias in `api/model_utils.py` lets it load under the pinned 1.0.2, but newer scikit-learn versions cannot unpickle it. Similarly, the API uses MNE APIs dropped in newer releases (hence the `mne==1.4.2` pin), and the frontend requires Node 16.
+- **Results page quirks.** Plots render only after a channel is selected; the probability chart's x-axis assumes a fixed 5 s bin spacing rather than the values you chose; recordings are cached by filename only, so re-uploading a *different* file with the same name returns stale results.
+- **No authentication and no tests.** The API serves files by relative path without restriction and should only ever run locally; `yarn test` finds no frontend tests.
+- **Link-rotted artwork.** Some page imagery is hotlinked from third-party hosts and no longer resolves (most visibly the illustration cards on the How-it-works page).
+
+## Screenshots
+
+![Landing page](docs/screenshots/landing.png)

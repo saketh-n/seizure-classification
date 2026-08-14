@@ -1,0 +1,15 @@
+# Pinned to versions verified to work together on Python 3.9.
+# scikit-learn is pinned to 1.0.2: the committed KNN model/scaler were pickled
+# with scikit-learn 0.23 and fail to load under 1.1+ (see api/model_utils.py).
+# mne is pinned below 1.5: the API imports `mne.io.edf`, which newer lazy-loaded
+# MNE versions no longer expose, and uses `tfr_morlet`, removed in MNE 1.7.
+Flask==2.2.5
+Werkzeug==2.2.3
+Flask-SocketIO==5.3.6
+flask-cors==6.0.5
+python-dotenv==1.2.1
+numpy==1.26.4
+scipy==1.13.1
+scikit-learn==1.0.2
+mne==1.4.2
+matplotlib==3.8.4

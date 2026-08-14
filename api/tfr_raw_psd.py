@@ -1,4 +1,7 @@
 import numpy as np
+import matplotlib
+# Figures are rendered inside Flask request threads; a GUI backend would crash there.
+matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 import mne
 import os

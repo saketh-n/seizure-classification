@@ -2,9 +2,16 @@
 # load model weights and perform classification
 
 import pickle
+import sys
 from constants import KNN_MODEL_PATH
 from mne.io import read_raw_edf, edf
 from os import getcwd
+
+# The KNN model was pickled with scikit-learn 0.23, which kept DistanceMetric
+# in sklearn.neighbors._dist_metrics; alias the module so the pickle loads
+# under the scikit-learn pinned in requirements.txt.
+import sklearn.metrics._dist_metrics
+sys.modules.setdefault('sklearn.neighbors._dist_metrics', sklearn.metrics._dist_metrics)
 
 
 def load_knn_model():
